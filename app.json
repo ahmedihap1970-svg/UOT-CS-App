@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "university-news",
-    "slug": "university-news",
+    "name": "uot.cs",
+    "slug": "alwm-alhaswb",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.uot.cs"
     },
     "web": {
       "output": "static",
@@ -43,6 +44,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5d29344a-04cc-4ae7-ada1-afb46c5fc3df"
+      }
+    },
+    "owner": "cyberhumans-team"
   }
 }

@@ -1,33 +1,75 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { Platform, StyleSheet } from 'react-native';
+import Theme from '../../constants/theme';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Theme.Colors.accent,
+        tabBarInactiveTintColor: Theme.Colors.text.muted,
+        tabBarStyle: {
+          backgroundColor: Theme.Colors.surface,
+          height: Platform.OS === 'ios' ? 88 : 64,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: Theme.Colors.border,
+          ...Theme.Shadows.md,
+          position: 'absolute',
+        },
+        tabBarLabelStyle: {
+          fontFamily: Theme.Typography.fonts.semiBold,
+          fontSize: 10, // صغرنا الخط شوية لأن صارن 5 أزرار
+        },
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'الرئيسية',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="activities"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'النشاطات',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'flask' : 'flask-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+      
+      {/* القسم الجديد: الطلاب */}
+      <Tabs.Screen
+        name="students"
+        options={{
+          title: 'الطلاب',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'school' : 'school-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="news"
+        options={{
+          title: 'الأخبار',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'newspaper' : 'newspaper-outline'} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="schedules"
+        options={{
+          title: 'الجداول',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={size} color={color} />
+          ),
         }}
       />
     </Tabs>
