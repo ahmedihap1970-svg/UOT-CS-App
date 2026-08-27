@@ -3,8 +3,8 @@ import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import time
 import json
-import os
 import requests # ضفنا مكتبة الطلبات
+
 secret_key = os.getenv("FIREBASE_SECRET")
 # رابط الفايربيس مالتك (لازم ينتهي بـ /news.json حتى نخلق مجلد اسمه news)
 FIREBASE_URL = f"https://universitynewsapp-83f24-default-rtdb.firebaseio.com/news.json?auth={secret_key}"
@@ -36,7 +36,14 @@ print("جاري فتح المتصفح وفحص الأخبار الجديدة..."
 saved_news = load_saved_news()
 saved_urls = [news['url'] for news in saved_news]
 
-driver = uc.Chrome(version_main=151)
+# إعدادات التخفي للسيرفر (Headless)
+options = uc.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+
+# تشغيل المتصفح مع الإعدادات
+driver = uc.Chrome(options=options)
 url = "https://cs.uotechnology.edu.iq/_scientific-acivity/#"
 
 try:
