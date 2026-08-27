@@ -3,8 +3,8 @@ import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import time
 import json
-import os
 import requests
+
 secret_key = os.getenv("FIREBASE_SECRET")
 FIREBASE_URL = f"https://universitynewsapp-83f24-default-rtdb.firebaseio.com/activities.json?auth={secret_key}"
 DATA_FILE = "activities_data.json"
@@ -17,11 +17,11 @@ SECTIONS = [
     },
     {
         "category": "نشاطات خدمة المجتمع",
-        "url": "https://cs.uotechnology.edu.iq/category/_community/#" # تأكد من الرابط
+        "url": "https://cs.uotechnology.edu.iq/category/_community/#"
     },
     {
         "category": "النشاط الرياضي",
-        "url": "https://cs.uotechnology.edu.iq/_sports/#" # تأكد من الرابط
+        "url": "https://cs.uotechnology.edu.iq/_sports/#"
     }
 ]
 
@@ -49,7 +49,14 @@ print("جاري تشغيل المتصفح وسحب البيانات من كل ا
 saved_activities = load_saved_activities()
 saved_urls = [act['url'] for act in saved_activities]
 
-driver = uc.Chrome(version_main=151)
+# إعدادات مخصصة لتشغيل المتصفح على السيرفرات السحابية (بدون شاشة)
+options = uc.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+
+# تشغيل المتصفح مع الإعدادات الجديدة (بدون تحديد رقم الإصدار)
+driver = uc.Chrome(options=options)
 
 all_current_data = []
 new_updates_count = 0
@@ -80,7 +87,7 @@ try:
                 if act_title:
                     page_extracted_data.append({"title": act_title, "url": act_link})
 
-        # 2. البحث بالتصميم الثاني (مقالات WordPress - مثل خدمة المجتمع حسب صورتك)
+        # 2. البحث بالتصميم الثاني (مقالات WordPress - مثل خدمة المجتمع)
         article_items = soup.find_all('h2', class_='entry-title')
         for item in article_items:
             link_tag = item.find('a')
