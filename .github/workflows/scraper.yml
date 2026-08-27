@@ -21,8 +21,8 @@ jobs:
     - name: تنصيب المكتبات المطلوبة
       run: |
         python -m pip install --upgrade pip
-        pip install requests beautifulsoup4
-        # إذا تستخدم مكتبات ثانية بالبايثون اكتبها هنا
+        pip install requests beautifulsoup4 undetected-chromedriver selenium
+        # إذا تستخدم أي مكتبات ثانية استدعيتها بملفاتك، ضيف اسمها هنا
 
     - name: تشغيل سكريبت الأخبار
       env:
