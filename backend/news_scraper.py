@@ -34,7 +34,14 @@ print("جاري الدخول للصفحة الرئيسية للكلية وسحب
 saved_news = load_saved_news()
 saved_urls = [news['url'] for news in saved_news]
 
-driver = uc.Chrome(version_main=151)
+# إعدادات مخصصة لتشغيل المتصفح على السيرفرات السحابية
+options = uc.ChromeOptions()
+options.add_argument('--headless') # التشغيل بدون شاشة مرئية
+options.add_argument('--no-sandbox') # تجاوز قيود حماية السيرفر
+options.add_argument('--disable-dev-shm-usage') # منع امتلاء الذاكرة العشوائية
+
+# تشغيل المتصفح مع الإعدادات الجديدة
+driver = uc.Chrome(options=options, version_main=151)
 url = "https://cs.uotechnology.edu.iq/"
 
 try:
