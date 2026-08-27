@@ -56,7 +56,7 @@ options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 
 # تشغيل المتصفح مع الإعدادات الجديدة (بدون تحديد رقم الإصدار)
-driver = uc.Chrome(options=options)
+driver = uc.Chrome(options=options, version_main=151)
 
 all_current_data = []
 new_updates_count = 0
