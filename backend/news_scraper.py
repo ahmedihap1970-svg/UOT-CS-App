@@ -20,7 +20,7 @@ def save_news(data_list):
     with open(DATA_FILE, "w", encoding="utf-8") as file:
         json.dump(data_list, file, ensure_ascii=False, indent=4)
 
-print("جاري تشغيل المتصفح وسحب الأخبار من الصفحة الرئيسية...")
+print("جاري تشغيل المتصفح وسحب الأخبار من كل الأقسام...")
 saved_news = load_saved_news()
 saved_urls = [news['url'] for news in saved_news]
 
@@ -29,7 +29,6 @@ options.add_argument('--headless')
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 
-# تشغيل المتصفح مع تثبيت إصدار السيرفر
 driver = uc.Chrome(options=options, version_main=151)
 
 all_current_news = []
@@ -37,27 +36,25 @@ new_updates_count = 0
 
 try:
     driver.get(MAIN_PAGE_URL)
-    time.sleep(10) # انتظار إضافي لتحميل البطاقات المتحركة
+    time.sleep(10) 
     
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     
-    # البحث عن عناوين الأخبار بتصميم البطاقات الخاص بالصفحة الرئيسية
-    news_elements = soup.select('.elementor-post__title a, .entry-title a, .elementor-heading-title a')
+    # دمجنا الكلاس القديم مال القوائم مع الكلاس الجديد مال البطاقات وكل الاحتمالات
+    news_elements = soup.select('.elementor-icon-list-item a, .thim-ekits-post__title a, .elementor-post__title a, .entry-title a, .elementor-heading-title a')
     
     for item in news_elements:
         act_link = item.get('href')
         act_title = item.get_text().strip()
         
-        # التأكد من أن الرابط والخبر غير فارغين
         if act_title and act_link:
             data_dict = {
                 "id": str(len(all_current_news) + 1), 
                 "title": act_title, 
                 "url": act_link,
-                "category": "آخر أخبار الكلية"
+                "category": "أخبار الجامعة"
             }
-            # منع التكرار في القائمة الحالية
             if data_dict not in all_current_news:
                 all_current_news.append(data_dict)
                 if act_link not in saved_urls:
@@ -67,7 +64,7 @@ try:
          save_news(all_current_news)
          requests.put(FIREBASE_URL, json=all_current_news)
 
-    print(f"✅ تم سحب {len(all_current_news)} خبر من الصفحة الرئيسية. (الجديد: {new_updates_count})")
+    print(f"✅ تم سحب {len(all_current_news)} خبر. (الجديد: {new_updates_count})")
 
 except Exception as e:
     print("حدث خطأ:", e)
