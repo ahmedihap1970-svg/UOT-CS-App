@@ -1,28 +1,30 @@
 import os
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
-import json
 import requests
 import time
 
 secret_key = os.getenv("FIREBASE_SECRET")
 FIREBASE_URL = f"https://universitynewsapp-83f24-default-rtdb.firebaseio.com/news.json?auth={secret_key}"
-DATA_FILE = "news_data.json"
 MAIN_PAGE_URL = "https://cs.uotechnology.edu.iq/"
 
+# 1. سحب الأخبار من الفايربيس مباشرة لحل مشكلة مسح البيانات في سيرفرات GitHub
 def load_saved_news():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r", encoding="utf-8") as file:
-            return json.load(file)
+    try:
+        response = requests.get(FIREBASE_URL)
+        if response.status_code == 200 and response.json():
+            return response.json()
+    except:
+        pass
     return []
 
-def save_news(data_list):
-    with open(DATA_FILE, "w", encoding="utf-8") as file:
-        json.dump(data_list, file, ensure_ascii=False, indent=4)
-
-print("جاري تشغيل المتصفح وسحب الأخبار من كل الأقسام...")
+print("جاري تشغيل المتصفح...")
 saved_news = load_saved_news()
-saved_urls = [news['url'] for news in saved_news]
+
+if saved_news is None:
+    saved_news = []
+    
+saved_urls = [news['url'] for news in saved_news if news and 'url' in news]
 
 options = uc.ChromeOptions()
 options.add_argument('--headless')
@@ -31,17 +33,20 @@ options.add_argument('--disable-dev-shm-usage')
 
 driver = uc.Chrome(options=options, version_main=151)
 
-all_current_news = []
+all_current_news = list(saved_news)
 new_updates_count = 0
 
 try:
     driver.get(MAIN_PAGE_URL)
-    time.sleep(10) 
+    time.sleep(5)
+    
+    # 2. النزول لأسفل الصفحة برمجياً لتفعيل التحميل المخفي (Lazy Load) للبطاقات
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(10)
     
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     
-    # دمجنا الكلاس القديم مال القوائم مع الكلاس الجديد مال البطاقات وكل الاحتمالات
     news_elements = soup.select('.elementor-icon-list-item a, .thim-ekits-post__title a, .elementor-post__title a, .entry-title a, .elementor-heading-title a')
     
     for item in news_elements:
@@ -49,22 +54,23 @@ try:
         act_title = item.get_text().strip()
         
         if act_title and act_link:
-            data_dict = {
-                "id": str(len(all_current_news) + 1), 
-                "title": act_title, 
-                "url": act_link,
-                "category": "أخبار الجامعة"
-            }
-            if data_dict not in all_current_news:
-                all_current_news.append(data_dict)
-                if act_link not in saved_urls:
-                    new_updates_count += 1
+            if act_link not in saved_urls:
+                data_dict = {
+                    "id": str(len(all_current_news) + 1), 
+                    "title": act_title, 
+                    "url": act_link,
+                    "category": "أخبار الجامعة"
+                }
+                # إضافة الخبر الجديد في بداية القائمة
+                all_current_news.insert(0, data_dict)
+                saved_urls.append(act_link)
+                new_updates_count += 1
                     
-    if all_current_news:
-         save_news(all_current_news)
+    if new_updates_count > 0:
          requests.put(FIREBASE_URL, json=all_current_news)
-
-    print(f"✅ تم سحب {len(all_current_news)} خبر. (الجديد: {new_updates_count})")
+         print(f"✅ تم سحب ورفع {new_updates_count} خبر جديد بنجاح!")
+    else:
+         print("🛑 لا توجد أخبار جديدة للرفع.")
 
 except Exception as e:
     print("حدث خطأ:", e)
